@@ -1,15 +1,37 @@
 import RPi.GPIO as GPIO
 import time
+import json
 import sys
 from hx711 import HX711
+import paho.mqtt.client as paho
+ 
+# The callback for when the client receives a CONNACK response from the server.
+def on_connect(client, userdata, rc):
+    print("Connected with result code "+str(rc))
+    # Subscribing in on_connect() means that if we lose the connection and
+    # reconnect then subscriptions will be renewed.
+    client.subscribe("$SYS/#")
+
+def on_publish(client, userdata, mid):
+    print("published : "+str(mid))
+ 
+client = paho.Client(client_id="pi_device_1")
+client.on_publish = on_publish
+client.on_connenct = on_connect
+broker_local = "192.168.43.157"
+broker_net = "broker.mqttdashboard.com"
+client.connect(broker_local, 1883)
+client.loop_start()
 
 def cleanAndExit():
     print "Cleaning..."
     GPIO.cleanup()
+    client.disconnect()
     print "Bye!"
     sys.exit()
 
-hx = HX711(5, 6)
+hx = HX711(23, 24)
+
 
 # I've found out that, for some reason, the order of the bytes is not always the same between versions of python, numpy and the hx711 itself.
 # Still need to figure out why does it change.
@@ -45,6 +67,8 @@ while True:
 
         hx.power_down()
         hx.power_up()
+        payload = { 'properties': [{ 'app_id': 'app_1', 'device_id': 'pi_device_1', 'weight': val }] }
+        client.publish("yoyo123", json.dumps(payload), qos=0)
         time.sleep(0.5)
     except (KeyboardInterrupt, SystemExit):
         cleanAndExit()
