@@ -13,17 +13,30 @@ def on_connect(client, userdata, rc):
 def on_publish(client, userdata, mid):
     print("mid: "+str(mid))
  
-client = paho.Client(client_id="pi_device_1")
+client = paho.Client(client_id="pi_device_10")
 client.on_publish = on_publish
 client.on_connenct = on_connect
-client.connect("broker.mqttdashboard.com", 1883)
+client.connect("192.168.43.157", 1883)
 client.loop_start()
 count = 0;
 
+class Payload:
+    deviceID = ""
+    appID = ""
+    weight = 0
+    def __init__(self, deviceID, appID):
+        self.deviceID = deviceID
+        self.appID = appID
+    def setWeight(self,weight):
+        self.weight = weight
+
+packet = Payload("A","B")
+packet.setWeight(10)
+
 while True:
-    client.publish("yoyo123", "fuckoff again" + str(count), qos=0)
+    client.publish("obol/tare", json.dumps(packet.__dict__), qos=0)
     count = count + 1
-    time.sleep(30)
+    time.sleep(1)
 
 #
 ## The callback for when a PUBLISH message is received from the server.

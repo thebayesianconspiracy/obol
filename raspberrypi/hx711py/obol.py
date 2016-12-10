@@ -30,8 +30,10 @@ def on_subscribe(client, userdata, mid, granted_qos):
  
 def on_message(client, userdata, msg):
     jsonMsg = json.loads(str(msg.payload))
-    
-    print(jsonMsg) 
+    if(jsonMsg['deviceID']==deviceID):
+        hx.tare()
+        print("Tare")
+    print(jsonMsg['deviceID']) 
 
 class Payload:
     deviceID = ""
