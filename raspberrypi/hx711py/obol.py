@@ -5,7 +5,7 @@ import sys
 from hx711 import HX711
 import paho.mqtt.client as paho
 
-deviceID = "PI_1"
+deviceID = "PI_2"
 appID = "APP_1"
 hx = HX711(23, 24)
 
